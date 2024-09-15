@@ -20,74 +20,62 @@ public:
 	SLoadingScreen();
 	~SLoadingScreen();
 
-void Construct(const FArguments& InArgs)
-{
-    FString MapName = InArgs._MapName;
-    
-    const ULoadingScreenConfig* Settings = ULoadingScreenConfig::Get();
-    if (!Settings) { return; }
-
-    // Normalize the passed-in MapName
-    FSoftObjectPath MapPath(MapName);
-    FString AssetPathString = FPackageName::ObjectPathToPackageName(MapPath.ToString());
-
-    // Extract the asset name (the part after the last '/')
-    FString AssetName = FPackageName::GetShortName(AssetPathString);
-
-    // Append the asset name to form the full object path
-    FString FullObjectPathString = FString::Printf(TEXT("%s.%s"), *AssetPathString, *AssetName);
-
-    // Convert back to FSoftObjectPath for TMap lookup
-    FSoftObjectPath FullObjectPath(FullObjectPathString);
-
-    // Use Contains to check if the TMap has a brush for the full object path
-    const FSlateBrush* MapBrush = nullptr;
-    if (Settings->MapBrushes.Contains(FullObjectPath))
+    void Construct(const FArguments& InArgs)
     {
-        // Use the map-specific loading screen brush
-        MapBrush = &Settings->MapBrushes[FullObjectPath];
-        UE_LOG(LogTemp, Log, TEXT("MapBrushTezt: Match found, using custom brush for map: %s"), *FullObjectPath.ToString());
-    }
-    else
-    {
-        UE_LOG(LogTemp, Log, TEXT("MapBrushTezt: No custom brush found, using default brush."));
-        MapBrush = &Settings->LoadingScreenBrushDefault;
-    }
-    
-    SelectedLoadingText = GetRandomLoadingText();
-    
-    ChildSlot
-    [
-        SNew(SOverlay)
-        + SOverlay::Slot()
-        [
-            SNew(SImage).Image(MapBrush)
-        ]
-        + SOverlay::Slot()
-        .VAlign(VAlign_Center)
-        .HAlign(HAlign_Center)
-        .Padding(FMargin(0, 0, 0, 50)) 
-        [
-            SNew(SThrobber)
-            .Visibility(this, &SLoadingScreen::GetLoadIndicatorVisibility)
-        ]
-        + SOverlay::Slot()
-        .VAlign(VAlign_Bottom)
-        .HAlign(HAlign_Center)
-        .Padding(FMargin(0, 0, 0, 50))
-        [
-            SNew(STextBlock)
-            .Text(this, &SLoadingScreen::GetSelectedLoadingText)
-            .Font(Settings->LoadingScreenFont)
-            .Justification(ETextJustify::Center)
-            .RenderTransformPivot(FVector2D(0.5f, 1.0f))  // Pivot at (0.5, 1)
-            .Visibility(this, &SLoadingScreen::GetMessageIndicatorVisibility)
-        ]
-    ];
-    
-}
+        FString MapName = InArgs._MapName;
+        
+        const ULoadingScreenConfig* Settings = ULoadingScreenConfig::Get();
+        if (!Settings) { return; }
 
+        // Get object path from the map name
+        FSoftObjectPath MapPath(MapName);
+        FString AssetPathString = FPackageName::ObjectPathToPackageName(MapPath.ToString());
+        FString AssetName = FPackageName::GetShortName(AssetPathString);
+        FString FullObjectPathString = FString::Printf(TEXT("%s.%s"), *AssetPathString, *AssetName);
+        FSoftObjectPath FullObjectPath(FullObjectPathString);
 
+        // Use Contains to check if the TMap has a brush for the full object path
+        const FSlateBrush* MapBrush = nullptr;
+        if (Settings->MapBrushes.Contains(FullObjectPath))
+        {
+            MapBrush = &Settings->MapBrushes[FullObjectPath];
+        }
+        else
+        {
+            MapBrush = &Settings->LoadingScreenBrushDefault;
+        }
+        
+        SelectedLoadingText = GetRandomLoadingText();
+        
+        ChildSlot
+        [
+            SNew(SOverlay)
+            + SOverlay::Slot()
+            [
+                SNew(SImage).Image(MapBrush)
+            ]
+            + SOverlay::Slot()
+            .VAlign(VAlign_Center)
+            .HAlign(HAlign_Center)
+            .Padding(FMargin(0, 0, 0, 50)) 
+            [
+                SNew(SThrobber)
+                .Visibility(this, &SLoadingScreen::GetLoadIndicatorVisibility)
+            ]
+            + SOverlay::Slot()
+            .VAlign(VAlign_Bottom)
+            .HAlign(HAlign_Center)
+            .Padding(FMargin(0, 0, 0, 50))
+            [
+                SNew(STextBlock)
+                .Text(this, &SLoadingScreen::GetSelectedLoadingText)
+                .Font(Settings->LoadingScreenFont)
+                .Justification(ETextJustify::Center)
+                .RenderTransformPivot(FVector2D(0.5f, 1.0f))  // Pivot at (0.5, 1)
+                .Visibility(this, &SLoadingScreen::GetMessageIndicatorVisibility)
+            ]
+        ];
+    }
 
 private:
 
