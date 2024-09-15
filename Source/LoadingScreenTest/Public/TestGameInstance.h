@@ -13,5 +13,16 @@ UCLASS()
 class LOADINGSCREENTEST_API UTestGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
+
+public:
+	virtual void Init() override;
+
+	UFUNCTION()
+	virtual void BeginLoadingScreen(const FString& MapName);
+	UFUNCTION()
+	virtual void EndLoadingScreen(UWorld* InLoadedWorld);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loading Screen")
+	float MinimumLoadingScreenDisplayTime = 2.0f;
 	
 };
