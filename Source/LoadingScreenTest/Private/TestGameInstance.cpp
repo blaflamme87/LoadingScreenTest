@@ -2,6 +2,8 @@
 
 
 #include "TestGameInstance.h"
+#include "MoviePlayer.h"
+#include "SLoadingScreen.h"
 
 void UTestGameInstance::Init()
 {
@@ -13,6 +15,15 @@ void UTestGameInstance::Init()
 
 void UTestGameInstance::BeginLoadingScreen(const FString& MapName)
 {
+	if (!IsRunningDedicatedServer())
+	{
+		FLoadingScreenAttributes LoadingScreen;
+		LoadingScreen.MinimumLoadingScreenDisplayTime = MinimumLoadingScreenDisplayTime;
+		LoadingScreen.bAutoCompleteWhenLoadingCompletes = false;
+		LoadingScreen.WidgetLoadingScreen = SNew(SLoadingScreen).MapName(MapName);
+ 
+		GetMoviePlayer()->SetupLoadingScreen(LoadingScreen);
+	}
 }
 
 void UTestGameInstance::EndLoadingScreen(UWorld* InLoadedWorld)
